@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ExampleRestControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private MockMvc sut;
 
     @Autowired
     private ExampleRepository exampleRepository;
@@ -32,7 +32,7 @@ class ExampleRestControllerTest {
 
     @Test
     void givenExampleEntity_whenGetExample_thenStatus200() throws Exception {
-        mockMvc.perform(get("/examples/{id}", 1)
+        sut.perform(get("/examples/{id}", 1)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Test Name"));
@@ -40,7 +40,7 @@ class ExampleRestControllerTest {
 
     @Test
     void whenPostExample_thenStatus201() throws Exception {
-        mockMvc.perform(post("/examples")
+        sut.perform(post("/examples")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"New Example\"}"))
                 .andExpect(status().isCreated())

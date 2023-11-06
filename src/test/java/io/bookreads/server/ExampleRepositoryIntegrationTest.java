@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -17,34 +15,42 @@ class ExampleRepositoryIntegrationTest {
     private TestEntityManager entityManager;
 
     @Autowired
-    private ExampleRepository exampleRepository;
+    private ExampleRepository sut;
 
     @BeforeEach
     public void setup() {
-        ExampleEntity exampleEntity = new ExampleEntity();
-        exampleEntity.setName("Test Name");
+        var exampleEntity = exampleEntity();
         entityManager.persist(exampleEntity);
         entityManager.flush();
     }
 
     @Test
     void whenFindById_thenReturnExampleEntity() {
-        ExampleEntity example = new ExampleEntity();
-        example.setName("Test Name");
+        var example = exampleEntity();
         example = entityManager.persistAndFlush(example);
 
-        Optional<ExampleEntity> foundEntity = exampleRepository.findById(example.getId());
+        var actual = sut.findById(example.getId());
 
-        assertThat(foundEntity).isPresent();
-        assertThat(foundEntity.get().getName()).isEqualTo(example.getName());
+        assertThat(actual).isPresent();
+        assertThat(actual.get().getName()).isEqualTo(example.getName());
     }
 
     @Test
     void whenInvalidId_thenReturnNull() {
-        Long invalidId = -1L;
+        var actual = sut.findById(
+                invalidId(-1L)
+        );
 
-        Optional<ExampleEntity> foundEntity = exampleRepository.findById(invalidId);
+        assertThat(actual).isNotPresent();
+    }
 
-        assertThat(foundEntity).isNotPresent();
+    private static Long invalidId(Long id) {
+        return id;
+    }
+
+    private static ExampleEntity exampleEntity() {
+        ExampleEntity example = new ExampleEntity();
+        example.setName("Test Name");
+        return example;
     }
 }
